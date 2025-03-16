@@ -1,0 +1,25 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+    <PropertyGroup>
+        <TargetFramework>net9.0</TargetFramework>
+        <ImplicitUsings>enable</ImplicitUsings>
+        <Nullable>enable</Nullable>
+        <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
+        <Title>Envy</Title>
+        <Authors>SirTony</Authors>
+        <Description>An environment variable loading utility inspired by the Rust crate of the same name.</Description>
+        <PackageProjectUrl>https://github.com/SirTony/Envy</PackageProjectUrl>
+        <PackageLicenseExpression>MIT</PackageLicenseExpression>
+        <RepositoryUrl>https://github.com/SirTony/Envy</RepositoryUrl>
+        <RepositoryType>github</RepositoryType>
+        <PackageReadmeFile>README.md</PackageReadmeFile>
+        <PackageTags>environment variable, environment, environment variables, variable, variables</PackageTags>
+    </PropertyGroup>
+
+    <ItemGroup>
+        <None Include="../README.md" Pack="true" PackagePath="\"/>
+        <PackageReference Include="CaseConverter" Version="2.0.1"/>
+        <PackageReference Include="Dunet" Version="1.11.2" PrivateAssets="all"/>
+    </ItemGroup>
+
+</Project>

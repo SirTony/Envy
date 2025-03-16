@@ -1,0 +1,27 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Envy", "Envy\Envy.csproj", "{15B1FDCA-7117-4395-BB68-A41E8023FA55}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Envy.Tests", "Envy.Tests\Envy.Tests.csproj", "{8277D88B-48B0-4F56-A5D1-A07A41E27F67}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Docs", "Docs", "{59DE1CC0-D828-4D0B-B289-EEDA07E9C731}"
+	ProjectSection(SolutionItems) = preProject
+		README.md = README.md
+	EndProjectSection
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{15B1FDCA-7117-4395-BB68-A41E8023FA55}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{15B1FDCA-7117-4395-BB68-A41E8023FA55}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{15B1FDCA-7117-4395-BB68-A41E8023FA55}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{15B1FDCA-7117-4395-BB68-A41E8023FA55}.Release|Any CPU.Build.0 = Release|Any CPU
+		{8277D88B-48B0-4F56-A5D1-A07A41E27F67}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{8277D88B-48B0-4F56-A5D1-A07A41E27F67}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{8277D88B-48B0-4F56-A5D1-A07A41E27F67}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{8277D88B-48B0-4F56-A5D1-A07A41E27F67}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+EndGlobal
