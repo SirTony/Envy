@@ -1,7 +1,6 @@
 using System.ComponentModel.DataAnnotations;
 using System.Reflection;
 using System.Runtime.CompilerServices;
-using System.Runtime.Serialization;
 using Dunet;
 
 namespace Envy;
@@ -36,13 +35,6 @@ internal partial record ModelMember
         _ => throw new NotImplementedException(),
     };
 
-    public bool IsOptedOut => this switch
-    {
-        Property p => p.Info.GetCustomAttribute<IgnoreDataMemberAttribute>() is not null,
-        Field f    => f.Info.GetCustomAttribute<IgnoreDataMemberAttribute>() is not null,
-        _          => throw new NotImplementedException(),
-    };
-
     public bool IsNullable
     {
         get
@@ -59,13 +51,6 @@ internal partial record ModelMember
                   && this.Type.GetGenericTypeDefinition() == typeof( Nullable<> ) );
         }
     }
-
-    public bool IsOptedIn => this switch
-    {
-        Property p => p.Info.GetCustomAttribute<DataMemberAttribute>() is not null,
-        Field f    => f.Info.GetCustomAttribute<DataMemberAttribute>() is not null,
-        _          => throw new NotImplementedException(),
-    };
 
     public IEnumerable<Attribute> GetCustomAttributes( bool inherit = true ) => this switch
     {

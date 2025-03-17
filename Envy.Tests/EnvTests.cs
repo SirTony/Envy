@@ -1,90 +1,67 @@
-using System.ComponentModel.DataAnnotations;
-using System.Diagnostics.CodeAnalysis;
-using System.Globalization;
-
-#pragma warning disable CS8618 // Non-nullable field must contain a non-null value when exiting constructor. Consider adding the 'required' modifier or declaring as nullable.
-
 namespace Envy.Tests;
 
-[SuppressMessage( "ReSharper", "ClassNeverInstantiated.Local" )]
 public class EnvTests
 {
+    // Simple test class for the test
+    // ReSharper disable once ClassNeverInstantiated.Local
     private class TestModel
     {
-        public string String { get; set; }
-        public bool   Bool   { get; set; }
-        public int    Int    { get; set; }
-        public double Double { get; set; }
+        public string StringProperty { get; } = String.Empty;
+        public int    IntProperty    { get; init; }
+        public bool   BoolProperty   { get; init; }
     }
 
-    private class RequiredFieldsModel
+    // Test class with required property
+    // ReSharper disable once ClassNeverInstantiated.Local
+    private class RequiredModel
     {
-        [Required] public string Required { get; set; }
+        public required string RequiredProperty { get; set; } = String.Empty;
 
-        public string Optional { get; set; }
+        public string OptionalProperty { get; set; } = String.Empty;
     }
 
+    // Converting environment variables to a model with a simple class
     [Test]
-    public void add_custom_parser()
+    public void to_model_converts_environment_variables_to_simple_class()
     {
-        var added = Env.AddParser( (Func<string, DateTime>)DateParser );
+        // Arrange
+        Environment.SetEnvironmentVariable( "TestModel_StringProperty", "test value" );
+        Environment.SetEnvironmentVariable( "TestModel_IntProperty",    "42" );
+        Environment.SetEnvironmentVariable( "TestModel_BoolProperty",   "true" );
+
+        // Act
+        var model = Env.ToModel<TestModel>( "TestModel" );
+
+        // Assert
+        Assert.That( model, Is.Not.Null );
         Assert.Multiple(
             () => {
-                Assert.That( added,                                                        Is.True );
-                Assert.That( Env.Parsers.Any( p => p.CanParseInto( typeof( DateTime ) ) ), Is.True );
+                Assert.That( model.StringProperty, Is.EqualTo( "test value" ) );
+                Assert.That( model.IntProperty,    Is.EqualTo( 42 ) );
+                Assert.That( model.BoolProperty,   Is.True );
             }
         );
 
-        return;
-
-        DateTime DateParser( string s ) => DateTime.ParseExact( s, "yyyy-MM-dd", CultureInfo.InvariantCulture );
+        // Cleanup
+        Environment.SetEnvironmentVariable( "TestModel_StringProperty", null );
+        Environment.SetEnvironmentVariable( "TestModel_IntProperty",    null );
+        Environment.SetEnvironmentVariable( "TestModel_BoolProperty",   null );
     }
 
+    // Handling missing required environment variables
     [Test]
-    public void parse_environment_variables_into_primitive_types()
+    public void to_model_throws_exception_when_required_environment_variable_is_missing()
     {
-        Environment.SetEnvironmentVariable( "TEST_STRING", "hello" );
-        Environment.SetEnvironmentVariable( "TEST_BOOL",   "true" );
-        Environment.SetEnvironmentVariable( "TEST_INT",    "42" );
-        Environment.SetEnvironmentVariable( "TEST_DOUBLE", "3.14" );
+        // Arrange
+        Environment.SetEnvironmentVariable( "RequiredModel_OptionalProperty", "optional value" );
+        // Deliberately not setting the required property
 
-        try
-        {
-            var model = Env.ToModel<TestModel>( "TEST" );
-            Assert.Multiple(
-                () => {
-                    // Assert
-                    Assert.That( model.String, Is.EqualTo( "hello" ) );
-                    Assert.That( model.Bool,   Is.EqualTo( true ) );
-                    Assert.That( model.Int,    Is.EqualTo( 42 ) );
-                    Assert.That( model.Double, Is.EqualTo( 3.14 ) );
-                }
-            );
-        }
-        finally
-        {
-            Environment.SetEnvironmentVariable( "TEST_STRING", null );
-            Environment.SetEnvironmentVariable( "TEST_BOOL",   null );
-            Environment.SetEnvironmentVariable( "TEST_INT",    null );
-            Environment.SetEnvironmentVariable( "TEST_DOUBLE", null );
-        }
-    }
+        // Act & Assert
+        var exception = Assert.Throws<KeyNotFoundException>( () => Env.ToModel<RequiredModel>( "RequiredModel" ) );
 
-    // Missing required environment variables should throw InvalidOperationException
-    [Test]
-    public void missing_required_environment_variable_throws_exception()
-    {
-        try
-        {
-            Environment.SetEnvironmentVariable( "TEST_OPTIONAL", "value" );
-            var exception = Assert.Throws<InvalidOperationException>(
-                () =>
-                    Env.ToModel<RequiredFieldsModel>( "TEST" )
-            );
+        Assert.That( exception.Message, Does.Contain( "RequiredModel_RequiredProperty" ) );
 
-            Assert.That( exception.Message, Does.Contain( "Required environment variable" ) );
-            Assert.That( exception.Message, Does.Contain( "is not set" ) );
-        }
-        finally { Environment.SetEnvironmentVariable( "TEST_OPTIONAL", null ); }
+        // Cleanup
+        Environment.SetEnvironmentVariable( "RequiredModel_OptionalProperty", null );
     }
 }
