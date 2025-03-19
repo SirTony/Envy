@@ -38,6 +38,16 @@ internal sealed class Model( ConstructorInfo constructor, ImmutableDictionary<st
             select member;
 
         var dict = members.ToImmutableDictionary( x => x.Name, x => x );
+        foreach( var (_, member) in dict )
+        {
+            if( member.IsRequired && member.IsOptional )
+            {
+                throw new InvalidOperationException(
+                    $"Member {member.Name} cannot be both required and optional."
+                );
+            }
+        }
+
         return new( activator, dict );
     }
 

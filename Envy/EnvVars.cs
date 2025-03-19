@@ -56,13 +56,14 @@ public sealed class EnvVars
     /// <returns>The full name of the environment variable in uppercase snake case, optionally prefixed.</returns>
     public string FullName( string name )
     {
-        if( this._prefix is null ) return name.ToSnakeCase().ToUpperInvariant();
-        return $"{
+        var fullName = $"{
             this._prefix ?? String.Empty
         }{
             ( this._prefix is not null && Env.PrefixSeparator is not null ? Env.PrefixSeparator : String.Empty )
         }{
             name
         }";
+
+        return fullName.ToSnakeCase().ToUpperInvariant();
     }
 }

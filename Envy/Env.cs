@@ -67,7 +67,7 @@ public static class Env
     /// <typeparam name="T">The type to convert the environment variables into.</typeparam>
     /// <param name="prefix">An optional prefix for the environment variables.</param>
     /// <returns>An instance of type <typeparamref name="T" /> populated with values from environment variables.</returns>
-    public static T ToModel<T>( string? prefix = null ) => (T)Env.ToModel( typeof( T ), prefix );
+    public static T Bind<T>( string? prefix = null ) => (T)Env.Bind( typeof( T ), prefix );
 
     /// <summary>
     ///     Converts environment variables into an instance of the specified type.
@@ -76,7 +76,7 @@ public static class Env
     /// <param name="prefix">An optional prefix for the environment variables.</param>
     /// <returns>An instance of <paramref name="type" /> populated with values from environment variables.</returns>
     // ReSharper disable once MemberCanBePrivate.Global
-    public static object ToModel( Type type, string? prefix = null )
+    public static object Bind( Type type, string? prefix = null )
     {
         Env.CacheType( type );
 
@@ -111,7 +111,7 @@ public static class Env
             }
         }
 
-        obj ??= model.Constructor.Invoke( null, ctorArgs );
+        obj ??= model.Constructor.Invoke( ctorArgs );
         if( obj is null )
         {
             throw new InvalidOperationException(
@@ -131,9 +131,11 @@ public static class Env
                     break;
                 case null when member.IsNullable:
                     continue;
-                case null:
+                case null when !member.IsOptional:
                     Env.ThrowMissingVariable( vars.FullName( name ) );
                     break;
+                case null when member.IsOptional:
+                    continue;
             }
 
             var parsedValue = ParseValue( value, member.Type );

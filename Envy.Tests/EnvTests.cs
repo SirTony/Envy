@@ -1,3 +1,5 @@
+// ReSharper disable AutoPropertyCanBeMadeGetOnly.Local
+
 namespace Envy.Tests;
 
 public class EnvTests
@@ -6,7 +8,7 @@ public class EnvTests
     // ReSharper disable once ClassNeverInstantiated.Local
     private class TestModel
     {
-        public string StringProperty { get; } = String.Empty;
+        public string StringProperty { get; init; } = String.Empty;
         public int    IntProperty    { get; init; }
         public bool   BoolProperty   { get; init; }
     }
@@ -20,17 +22,34 @@ public class EnvTests
         public string OptionalProperty { get; set; } = String.Empty;
     }
 
+    // ReSharper disable once ClassNeverInstantiated.Local
+    private sealed record OptionalParamsModel( string Foo = "foo", string Baz = "baz" );
+
+    [Test]
+    public void constructor_with_all_optional_parameters()
+    {
+        var model = Env.Bind<OptionalParamsModel>();
+        Assert.Multiple(
+            () => {
+                Assert.That( model.Foo, Is.EqualTo( "foo" ) );
+                Assert.That( model.Baz, Is.EqualTo( "baz" ) );
+            }
+        );
+    }
+
     // Converting environment variables to a model with a simple class
     [Test]
     public void to_model_converts_environment_variables_to_simple_class()
     {
+        var env = Env.Vars.WithPrefix( "TestModel" );
+
         // Arrange
-        Environment.SetEnvironmentVariable( "TestModel_StringProperty", "test value" );
-        Environment.SetEnvironmentVariable( "TestModel_IntProperty",    "42" );
-        Environment.SetEnvironmentVariable( "TestModel_BoolProperty",   "true" );
+        env["StringProperty"] = "test value";
+        env["IntProperty"]    = "42";
+        env["BoolProperty"]   = "true";
 
         // Act
-        var model = Env.ToModel<TestModel>( "TestModel" );
+        var model = Env.Bind<TestModel>( "TestModel" );
 
         // Assert
         Assert.That( model, Is.Not.Null );
@@ -43,25 +62,27 @@ public class EnvTests
         );
 
         // Cleanup
-        Environment.SetEnvironmentVariable( "TestModel_StringProperty", null );
-        Environment.SetEnvironmentVariable( "TestModel_IntProperty",    null );
-        Environment.SetEnvironmentVariable( "TestModel_BoolProperty",   null );
+        env["StringProperty"] = null;
+        env["IntProperty"]    = null;
+        env["BoolProperty"]   = null;
     }
 
     // Handling missing required environment variables
     [Test]
     public void to_model_throws_exception_when_required_environment_variable_is_missing()
     {
+        var env = Env.Vars.WithPrefix( "RequiredModel" );
+
         // Arrange
-        Environment.SetEnvironmentVariable( "RequiredModel_OptionalProperty", "optional value" );
+        env["OptionalProperty"] = "optional value";
         // Deliberately not setting the required property
 
         // Act & Assert
-        var exception = Assert.Throws<KeyNotFoundException>( () => Env.ToModel<RequiredModel>( "RequiredModel" ) );
+        var exception = Assert.Throws<KeyNotFoundException>( () => Env.Bind<RequiredModel>( "RequiredModel" ) );
 
-        Assert.That( exception.Message, Does.Contain( "RequiredModel_RequiredProperty" ) );
+        Assert.That( exception.Message, Does.Contain( "REQUIRED_PROPERTY" ) );
 
         // Cleanup
-        Environment.SetEnvironmentVariable( "RequiredModel_OptionalProperty", null );
+        env["OptionalProperty"] = null;
     }
 }

@@ -35,6 +35,13 @@ internal partial record ModelMember
         _ => throw new NotImplementedException(),
     };
 
+    public bool IsOptional => this switch
+    {
+        Property p => p.Info.GetCustomAttribute<OptionalAttribute>() is not null,
+        Field f    => f.Info.GetCustomAttribute<OptionalAttribute>() is not null,
+        _          => throw new NotImplementedException(),
+    };
+
     public bool IsNullable
     {
         get
